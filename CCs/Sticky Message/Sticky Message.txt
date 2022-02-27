@@ -1,0 +1,25 @@
+{{ $MessageDiscription := (joinStr "" 
+	"**This is a Sticky Message**\n```Here is some line of words```\n\n"
+	"**Sticky message will always stay at bottom of chat! :) YAY\n\n"
+)}}
+
+{{ $time :=  currentTime }}
+{{ $serverIcon := (joinStr "" "https://cdn.discordapp.com/icons/" .Guild.ID "/" .Guild.Icon ".png") }}
+
+{{$stickyMsg := cembed 
+    "title" "**STICKY MESSAGE WITH YAGPDB**" 
+    "description" $MessageDiscription
+    "thumbnail" (sdict "url" $serverIcon)
+    "footer" 
+	(sdict 
+		"text" "MyStickyMessage.gg"
+		"icon_url" $serverIcon
+	)
+    "timestamp" $time
+}}
+
+{{if $db := dbGet .Channel.ID "stickymessage"}}
+	{{deleteMessage nil (toInt $db.Value) 0}}
+{{end}}
+{{$id := sendMessageRetID nil $stickyMsg}}
+{{dbSet .Channel.ID "stickymessage" (str $id)}}
